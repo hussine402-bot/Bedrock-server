@@ -25,13 +25,23 @@ jobs:
         sed -i 's/allow-list=true/allow-list=false/g' server.properties
         sed -i 's/white-list=true/white-list=false/g' server.properties
 
-    - name: Run Playit & Bedrock Server
+    - name: Setup Tunnel & Run Server
       run: |
-        curl -SsL -o playit https://github.com/playit-cloud/playit-agent/releases/latest/download/playit-linux-amd64
-        chmod +x playit
-        ./playit &
-        sleep 5
+        # تحميل وتجهيز pinggy للربط المباشر
+        curl -shttps://ssh.pinggy.io > pinggy.sh
         
+        # تشغيل النفق وتوليد الـ IP والـ Port بوضوح
+        ssh -o StrictHostKeyChecking=no -p 443 -R0:localhost:19132 qr@a.pinggy.io UDP > tunnel.log 2>&1 &
+        
+        # تشغيل سيرفر ماين كرافت
         cd server
-        LD_LIBRARY_PATH=. ./bedrock_server
+        LD_LIBRARY_PATH=. ./bedrock_server &
+        
+        # الانتظار وطباعة عنوان الـ IP والـ Port المباشر
+        sleep 8
+        echo "=========================================="
+        echo "👇 عنوان السيرفر والـ Port المباشر للعب 👇"
+        cat ../tunnel.log | grep -o 'a.pinggy.io:[0-9]*' || cat ../tunnel.log
+        echo "=========================================="
+        wait
         
