@@ -1,4 +1,4 @@
-name: Bedrock Server 1.26.33
+name: Bedrock Server
 
 on:
   workflow_dispatch:
@@ -11,11 +11,18 @@ jobs:
     - name: Download & Extract Bedrock Server
       run: |
         sudo apt-get update
-        sudo apt-get install -y curl unzip wget libcurl4
+        sudo apt-get install -y curl unzip libcurl4
         
-        # Download Bedrock Server with user-agent
-        wget --user-agent="Mozilla/5.0" -O bedrock-server.zip "https://minecraft.azureedge.net/bin-linux/bedrock-server-1.20.81.01.zip" || \
-        curl -A "Mozilla/5.0" -o bedrock-server.zip "https://minecraft.azureedge.net/bin-linux/bedrock-server-1.20.81.01.zip"
+        # جلب رابط أحدث نسخة سيرفر من موقع ماين كرافت الرسمي تلقائياً
+        DOWNLOAD_URL=$(curl -sH "User-Agent: Mozilla/5.0" https://www.minecraft.net/en-us/download/server/bedrock | grep -oP 'https://www.minecraft.net/bedrockdotsite/bin-linux/bedrock-server-[^"]+' | head -n 1)
+        
+        # إذا لم يتم استخراج الرابط تلقائياً، استخدم الرابط المباشر المحدث
+        if [ -z "$DOWNLOAD_URL" ]; then
+          DOWNLOAD_URL="https://www.minecraft.net/bedrockdotsite/bin-linux/bedrock-server-1.21.0.03.zip"
+        fi
+        
+        echo "Downloading from: $DOWNLOAD_URL"
+        curl -H "User-Agent: Mozilla/5.0" -o bedrock-server.zip "$DOWNLOAD_URL"
         
         unzip -o bedrock-server.zip -d server
         cd server
@@ -38,3 +45,4 @@ jobs:
       run: |
         cd server
         LD_LIBRARY_PATH=. ./bedrock_server
+        
