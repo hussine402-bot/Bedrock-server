@@ -25,19 +25,19 @@ jobs:
         sed -i 's/allow-list=true/allow-list=false/g' server.properties
         sed -i 's/white-list=true/white-list=false/g' server.properties
 
-    - name: Setup Playit.gg
+    - name: Install Playit.gg
       run: |
         curl -SsL https://playit-cloud.github.io/ppa/key.gpg | sudo apt-key add -
         sudo curl -SsL -o /etc/apt/sources.list.d/playit-cloud.list https://playit-cloud.github.io/ppa/playit-cloud.list
         sudo apt-get update
         sudo apt-get install playit -y
 
-    - name: Run Playit Tunnel & Bedrock Server
+    - name: Run Playit & Bedrock Server
       run: |
-        # تشغيل playit وطباعة السجلات مباشرة في الشاشة
-        playit --claim &
+        # تشغيل playit وطباعة رابط التفعيل فوراً
+        playit | grep -o 'https://playit.gg/claim/[^ ]*' &
+        sleep 4
         
         # تشغيل السيرفر
         cd server
         LD_LIBRARY_PATH=. ./bedrock_server
-        
