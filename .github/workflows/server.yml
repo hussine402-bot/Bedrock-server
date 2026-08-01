@@ -8,12 +8,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Download & Extract Bedrock Server 1.26.33
+    - name: Download & Extract Bedrock Server
       run: |
         sudo apt-get update
-        sudo apt-get install -y curl unzip libcurl4
-        curl -H "User-Agent: Mozilla/5.0" -o bedrock-server.zip https://minecraft.azureedge.net/bin-linux/bedrock-server-1.26.33.01.zip || curl -H "User-Agent: Mozilla/5.0" -o bedrock-server.zip https://minecraft.azureedge.net/bin-linux/bedrock-server-1.26.33.zip
-        unzip bedrock-server.zip -d server
+        sudo apt-get install -y curl unzip wget libcurl4
+        
+        # Download Bedrock Server with user-agent
+        wget --user-agent="Mozilla/5.0" -O bedrock-server.zip "https://minecraft.azureedge.net/bin-linux/bedrock-server-1.20.81.01.zip" || \
+        curl -A "Mozilla/5.0" -o bedrock-server.zip "https://minecraft.azureedge.net/bin-linux/bedrock-server-1.20.81.01.zip"
+        
+        unzip -o bedrock-server.zip -d server
         cd server
         chmod +x bedrock_server
 
@@ -34,6 +38,3 @@ jobs:
       run: |
         cd server
         LD_LIBRARY_PATH=. ./bedrock_server
-
-      
-        
