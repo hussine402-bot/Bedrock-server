@@ -25,18 +25,13 @@ jobs:
         sed -i 's/allow-list=true/allow-list=false/g' server.properties
         sed -i 's/white-list=true/white-list=false/g' server.properties
 
-    - name: Download Playit
+    - name: Run Playit & Bedrock Server
       run: |
         curl -SsL -o playit https://github.com/playit-cloud/playit-agent/releases/latest/download/playit-linux-amd64
         chmod +x playit
-
-    - name: Run Playit & Bedrock Server
-      run: |
-        # تشغيل playit وطباعة السجلات مباشرة
         ./playit &
         sleep 5
         
-        # تشغيل السيرفر
         cd server
         LD_LIBRARY_PATH=. ./bedrock_server
         
