@@ -13,10 +13,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y curl unzip libcurl4
 
-        # تنزيل الملف المرفوع مباشرة من Catbox
         curl -sSL -o bedrock-server.zip "https://files.catbox.moe/810r6e.zip"
-
-        # فك الضغط وإعطاء صلاحيات التشغيل
         unzip -o bedrock-server.zip -d server
         cd server
         chmod +x bedrock_server
@@ -24,9 +21,7 @@ jobs:
     - name: Configure Server Settings
       run: |
         cd server
-        # تعطيل الأونلاين مود ليدخل المكرك
         sed -i 's/online-mode=true/online-mode=false/g' server.properties
-        # تعطيل الـ allow-list لحل مشكلة الإغلاق المفاجئ
         sed -i 's/allow-list=true/allow-list=false/g' server.properties
         sed -i 's/white-list=true/white-list=false/g' server.properties
 
@@ -36,6 +31,10 @@ jobs:
         sudo curl -SsL -o /etc/apt/sources.list.d/playit-cloud.list https://playit-cloud.github.io/ppa/playit-cloud.list
         sudo apt-get update
         sudo apt-get install playit -y
+        
+        # تشغيل playit وطباعة الرابط فوراً بوضوح
+        playit secret setup &
+        sleep 5
         playit &
 
     - name: Run Minecraft Bedrock Server
