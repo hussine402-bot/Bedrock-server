@@ -21,10 +21,14 @@ jobs:
         cd server
         chmod +x bedrock_server
 
-    - name: Enable Cracked Mode (online-mode=false)
+    - name: Configure Server Settings
       run: |
         cd server
+        # تعطيل الأونلاين مود ليدخل المكرك
         sed -i 's/online-mode=true/online-mode=false/g' server.properties
+        # تعطيل الـ allow-list لحل مشكلة الإغلاق المفاجئ
+        sed -i 's/allow-list=true/allow-list=false/g' server.properties
+        sed -i 's/white-list=true/white-list=false/g' server.properties
 
     - name: Setup & Run Playit.gg Tunnel
       run: |
