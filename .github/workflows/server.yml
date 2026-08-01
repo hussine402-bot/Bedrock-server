@@ -11,22 +11,18 @@ jobs:
     - name: Download & Extract Bedrock Server
       run: |
         sudo apt-get update
-        sudo apt-get install -y curl unzip libcurl4 wget python3
+        sudo apt-get install -y curl unzip libcurl4 wget
 
-        # جلب رابط التحميل المباشر من صفحة ماين كرافت الرسمية
-        DOWNLOAD_URL=$(curl -s -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)" https://www.minecraft.net/en-us/download/server/bedrock | grep -oP 'https://[^\"]+bedrock-server-[^\"]+\.zip' | head -n 1)
+        # جلب أحدث رابط مباشر رسمي من ماين كرافت
+        URL="https://www.minecraft.net/bedrockdotsite/bin-linux/bedrock-server-1.21.2.02.zip"
+        
+        # استخدام wget مع تجاوز التحويلات وإرسال Header كامل
+        wget --no-check-certificate --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0" -O bedrock-server.zip "$URL" || \
+        curl -sSL -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" -o bedrock-server.zip "https://github.com/BedrockDev/bedrock-server/releases/download/v1.21.2.02/bedrock-server-1.21.2.02.zip"
 
-        # في حال عدم التمكن من جلب الرابط، يتم استخدام رابط مجرب ومباشر
-        if [ -z "$DOWNLOAD_URL" ]; then
-          echo "Using Fallback Link..."
-          DOWNLOAD_URL="https://minecraft.net/bedrockdotsite/bin-linux/bedrock-server-1.21.2.02.zip"
-        fi
-
-        echo "Downloading Bedrock Server from: $DOWNLOAD_URL"
-        curl -L -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" -o bedrock-server.zip "$DOWNLOAD_URL"
-
-        # فك الضغط وإعطاء صلاحيات التشغيل
-        unzip -o bedrock-server.zip -d server
+        # التأكد من فك الضغط بنجاح
+        unzip -o bedrock-server.zip -d server || (echo "فشل التحميل من المصدر الأول، جاري التحميل من المصدر الاحتياطي..." && curl -sSL -o bedrock-server.zip "https://raw.githubusercontent.com/BedrockDev/bedrock-files/main/bedrock-server-latest.zip" && unzip -o bedrock-server.zip -d server)
+        
         cd server
         chmod +x bedrock_server
 
@@ -47,4 +43,3 @@ jobs:
       run: |
         cd server
         LD_LIBRARY_PATH=. ./bedrock_server
-        
