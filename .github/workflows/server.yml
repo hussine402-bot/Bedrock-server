@@ -11,12 +11,21 @@ jobs:
     - name: Download & Extract Bedrock Server
       run: |
         sudo apt-get update
-        sudo apt-get install -y curl unzip libcurl4 wget
+        sudo apt-get install -y curl unzip libcurl4 wget python3
 
-        # تحميل السيرفر مع متابعة التحويلات (-L) ومتصفح كامل
-        curl -L -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" -o bedrock-server.zip "https://minecraft.azureedge.net/bin-linux/bedrock-server-1.20.81.01.zip"
+        # جلب رابط التحميل المباشر من صفحة ماين كرافت الرسمية
+        DOWNLOAD_URL=$(curl -s -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)" https://www.minecraft.net/en-us/download/server/bedrock | grep -oP 'https://[^\"]+bedrock-server-[^\"]+\.zip' | head -n 1)
 
-        # فك الضغط عن الملف
+        # في حال عدم التمكن من جلب الرابط، يتم استخدام رابط مجرب ومباشر
+        if [ -z "$DOWNLOAD_URL" ]; then
+          echo "Using Fallback Link..."
+          DOWNLOAD_URL="https://minecraft.net/bedrockdotsite/bin-linux/bedrock-server-1.21.2.02.zip"
+        fi
+
+        echo "Downloading Bedrock Server from: $DOWNLOAD_URL"
+        curl -L -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" -o bedrock-server.zip "$DOWNLOAD_URL"
+
+        # فك الضغط وإعطاء صلاحيات التشغيل
         unzip -o bedrock-server.zip -d server
         cd server
         chmod +x bedrock_server
@@ -38,3 +47,4 @@ jobs:
       run: |
         cd server
         LD_LIBRARY_PATH=. ./bedrock_server
+        
