@@ -1,0 +1,39 @@
+name: Bedrock Server 1.26.33
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-server:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download & Extract Bedrock Server 1.26.33
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y curl unzip libcurl4
+        curl -H "User-Agent: Mozilla/5.0" -o bedrock-server.zip https://minecraft.azureedge.net/bin-linux/bedrock-server-1.26.33.01.zip || curl -H "User-Agent: Mozilla/5.0" -o bedrock-server.zip https://minecraft.azureedge.net/bin-linux/bedrock-server-1.26.33.zip
+        unzip bedrock-server.zip -d server
+        cd server
+        chmod +x bedrock_server
+
+    - name: Enable Cracked Mode (online-mode=false)
+      run: |
+        cd server
+        sed -i 's/online-mode=true/online-mode=false/g' server.properties
+
+    - name: Setup & Run Playit.gg Tunnel
+      run: |
+        curl -SsL https://playit-cloud.github.io/ppa/key.gpg | sudo apt-key add -
+        sudo curl -SsL -o /etc/apt/sources.list.d/playit-cloud.list https://playit-cloud.github.io/ppa/playit-cloud.list
+        sudo apt-get update
+        sudo apt-get install playit -y
+        playit &
+
+    - name: Run Minecraft Bedrock Server
+      run: |
+        cd server
+        LD_LIBRARY_PATH=. ./bedrock_server
+
+      
+        
