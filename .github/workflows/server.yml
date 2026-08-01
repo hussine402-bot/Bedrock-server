@@ -25,23 +25,12 @@ jobs:
         sed -i 's/allow-list=true/allow-list=false/g' server.properties
         sed -i 's/white-list=true/white-list=false/g' server.properties
 
-    - name: Setup Tunnel & Run Server
+    - name: Start Server & Tunnel
       run: |
-        # تحميل وتجهيز pinggy للربط المباشر
-        curl -shttps://ssh.pinggy.io > pinggy.sh
-        
-        # تشغيل النفق وتوليد الـ IP والـ Port بوضوح
-        ssh -o StrictHostKeyChecking=no -p 443 -R0:localhost:19132 qr@a.pinggy.io UDP > tunnel.log 2>&1 &
-        
-        # تشغيل سيرفر ماين كرافت
+        # تشغيل سيرفر ماينكرافت في الخلفية
         cd server
         LD_LIBRARY_PATH=. ./bedrock_server &
         
-        # الانتظار وطباعة عنوان الـ IP والـ Port المباشر
-        sleep 8
-        echo "=========================================="
-        echo "👇 عنوان السيرفر والـ Port المباشر للعب 👇"
-        cat ../tunnel.log | grep -o 'a.pinggy.io:[0-9]*' || cat ../tunnel.log
-        echo "=========================================="
-        wait
+        # تشغيل نفق الاتصال وإخراج الـ IP والـ Port
+        ssh -o StrictHostKeyChecking=no -p 443 -R0:localhost:19132 tcp@a.pinggy.io
         
